@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
-        :root{--bg:#000;--text:#c0c0c0;--bright:#e0e0e0;--border:#333;--card:#0a0a0a;--sold-out:#ff3333}
+        :root{--bg:#000;--text:#c0c0c0;--bright:#e0e0e0;--border:#333;--card:#0a0a0a;--sold-out:#ff3333;--in-stock:#00ff88}
         body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overflow-x:hidden}
         
         header{position:fixed;top:0;left:0;right:0;height:100px;display:flex;justify-content:center;align-items:center;z-index:100;background:rgba(0,0,0,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
@@ -296,6 +296,40 @@
             </div>
 
             <div class="product-grid" id="productGrid">
+                <!-- ============================================ -->
+                <!-- PRODUCTOS EN STOCK (APARECEN PRIMERO) -->
+                <!-- ============================================ -->
+                
+                <!-- CHROME PULSERA - Stock: 1 (ULTIMA!) -->
+                <div class="product-card" data-category="pulseras" data-stock="1" onclick="showProductDetail('Pulsera tipo Chrome Hearts','$15.000','Primer modelo de pulseras chrome hearts type incluido en nuestro catálogo. Puro y exclusivo para matchear ese outfit que vas a llevar al reci mañana.','https://res.cloudinary.com/dzrzmhfxd/image/upload/v1770423944/df41b9eaa3229c838f9bf62f534ffdcd_p2jwpq.jpg', 1)">
+                    <div class="product-image">
+                        <span class="stock-badge low">¡ÚLTIMA!</span>
+                        <img src="https://res.cloudinary.com/dzrzmhfxd/image/upload/v1770423944/df41b9eaa3229c838f9bf62f534ffdcd_p2jwpq.jpg" alt="Pulsera tipo Chrome Hearts">
+                        <div class="product-overlay"></div>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-name">Pulsera Chrome Type</div>
+                        <div class="product-price">$15.000</div>
+                    </div>
+                </div>
+
+                <!-- VIVIENNE WHITE - Stock: 1 (ULTIMA!) -->
+                <div class="product-card" data-category="cadenas" data-stock="1" onclick="showProductDetail('Vivienne Westwood Type White Chain','$30.000','Necesitas la Vivienne, si querés vivir good.','https://res.cloudinary.com/dzrzmhfxd/image/upload/v1770426443/9cb25626b19b6d5f377514feb36a4907_nruldg.jpg', 1)">
+                    <div class="product-image">
+                        <span class="stock-badge low">¡ÚLTIMA!</span>
+                        <img src="https://res.cloudinary.com/dzrzmhfxd/image/upload/v1770426443/9cb25626b19b6d5f377514feb36a4907_nruldg.jpg" alt="Vivienne Westwood Type White Chain">
+                        <div class="product-overlay"></div>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-name">VW Type White Chain</div>
+                        <div class="product-price">$30.000</div>
+                    </div>
+                </div>
+
+                <!-- ============================================ -->
+                <!-- PRODUCTOS AGOTADOS (APARECEN AL FINAL) -->
+                <!-- ============================================ -->
+
                 <!-- GORRA - Stock: 0 (AGOTADO) -->
                 <div class="product-card sold-out" data-category="gorras" data-stock="0">
                     <div class="product-image">
@@ -361,19 +395,6 @@
                     </div>
                 </div>
 
-                <!-- CHROME PULSERA - Stock: 1 (ULTIMA!) -->
-                <div class="product-card" data-category="pulseras" data-stock="1" onclick="showProductDetail('Pulsera tipo Chrome Hearts','$15.000','Primer modelo de pulseras chrome hearts type incluido en nuestro catálogo. Puro y exclusivo para matchear ese outfit que vas a llevar al reci mañana.','https://res.cloudinary.com/dzrzmhfxd/image/upload/v1770423944/df41b9eaa3229c838f9bf62f534ffdcd_p2jwpq.jpg', 1)">
-                    <div class="product-image">
-                        <span class="stock-badge low">¡ÚLTIMA!</span>
-                        <img src="https://res.cloudinary.com/dzrzmhfxd/image/upload/v1770423944/df41b9eaa3229c838f9bf62f534ffdcd_p2jwpq.jpg" alt="Pulsera tipo Chrome Hearts">
-                        <div class="product-overlay"></div>
-                    </div>
-                    <div class="product-info">
-                        <div class="product-name">Pulsera Chrome Type</div>
-                        <div class="product-price">$15.000</div>
-                    </div>
-                </div>
-
                 <!-- CHROME SOFT CHAIN - Stock: 0 (AGOTADO) -->
                 <div class="product-card sold-out" data-category="cadenas" data-stock="0">
                     <div class="product-image">
@@ -423,19 +444,6 @@
                     <div class="product-info">
                         <div class="product-name">VW Type Tiny Chain</div>
                         <div class="product-price">$15.000</div>
-                    </div>
-                </div>
-
-                <!-- VIVIENNE WHITE - Stock: 1 (ULTIMA!) -->
-                <div class="product-card" data-category="cadenas" data-stock="1" onclick="showProductDetail('Vivienne Westwood Type White Chain','$30.000','Necesitas la Vivienne, si querés vivir good.','https://res.cloudinary.com/dzrzmhfxd/image/upload/v1770426443/9cb25626b19b6d5f377514feb36a4907_nruldg.jpg', 1)">
-                    <div class="product-image">
-                        <span class="stock-badge low">¡ÚLTIMA!</span>
-                        <img src="https://res.cloudinary.com/dzrzmhfxd/image/upload/v1770426443/9cb25626b19b6d5f377514feb36a4907_nruldg.jpg" alt="Vivienne Westwood Type White Chain">
-                        <div class="product-overlay"></div>
-                    </div>
-                    <div class="product-info">
-                        <div class="product-name">VW Type White Chain</div>
-                        <div class="product-price">$30.000</div>
                     </div>
                 </div>
 
@@ -581,3 +589,4 @@
     </script>
 </body>
 </html>
+
