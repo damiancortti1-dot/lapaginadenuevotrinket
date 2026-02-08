@@ -9,26 +9,7 @@
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
         :root{--bg:#000;--text:#c0c0c0;--bright:#e0e0e0;--border:#333;--card:#0a0a0a;--sold-out:#ff3333;--in-stock:#00ff88;--accent:#c0c0c0}
-       body{
-    background:var(--bg);
-    color:var(--text);
-    font-family:'Inter',sans-serif;
-    overflow-x:hidden;
-    cursor:none;
-    position:relative;
-}
-body::before{
-    content:'';
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    pointer-events:none;
-    z-index:0;
-    opacity:0.03;
-    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")
-}
+       body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overflow-x:hidden;cursor:none}
         
         /* Cursor personalizado - Más pequeño */
         .custom-cursor{
@@ -1699,5 +1680,6 @@ body::before{
     </script>
 </body>
 </html>
+
 
 
