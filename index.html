@@ -1489,15 +1489,15 @@
         function checkoutWhatsApp() {
             if (cart.length === 0) return;
             
-            let message = 'Hola! Quiero comprar:\\n\\n';
+            let message = 'Hola! Quiero comprar:\n\n';
             let total = 0;
             
             cart.forEach(item => {
-                message += `${item.quantity}x ${item.name} - $${(item.price * item.quantity).toLocaleString()}\\n`;
+message += `${item.quantity}x ${item.name} - $${(item.price * item.quantity).toLocaleString()}\n`;
                 total += item.price * item.quantity;
             });
-            
-            message += `\\nTotal: $${total.toLocaleString()}`;
+           
+            message += `\nTotal: $${total.toLocaleString()}`;
             
             window.open(`https://wa.me/5491128078841?text=${encodeURIComponent(message)}`, '_blank');
         }
@@ -1680,6 +1680,7 @@
     </script>
 </body>
 </html>
+
 
 
 
