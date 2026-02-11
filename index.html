@@ -801,6 +801,133 @@
     background: rgba(0,0,0,.95);
     transform: translateY(-2px);
 }
+
+/* ===== REPRODUCTOR MINIMALISTA ===== */
+.music-player {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    z-index: 400;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(0,0,0,0.9);
+    border: 1px solid var(--border);
+    padding: 12px 16px;
+    backdrop-filter: blur(20px);
+    transition: all 0.3s ease;
+}
+
+.music-player:hover {
+    border-color: var(--bright);
+    box-shadow: 0 0 20px rgba(192,192,192,0.1);
+}
+
+/* Visualizador de audio */
+.audio-visualizer {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 20px;
+    width: 24px;
+}
+
+.visualizer-bar {
+    width: 3px;
+    background: var(--bright);
+    border-radius: 1px;
+    animation: visualizer 0.8s ease-in-out infinite;
+    opacity: 0.3;
+}
+
+.visualizer-bar:nth-child(1) { height: 30%; animation-delay: 0s; }
+.visualizer-bar:nth-child(2) { height: 60%; animation-delay: 0.1s; }
+.visualizer-bar:nth-child(3) { height: 40%; animation-delay: 0.2s; }
+.visualizer-bar:nth-child(4) { height: 80%; animation-delay: 0.3s; }
+
+@keyframes visualizer {
+    0%, 100% { transform: scaleY(0.5); opacity: 0.3; }
+    50% { transform: scaleY(1); opacity: 1; }
+}
+
+.music-player.playing .visualizer-bar {
+    animation-play-state: running;
+}
+
+.music-player.paused .visualizer-bar {
+    animation-play-state: paused;
+    opacity: 0.2;
+}
+
+/* Botones */
+.player-btn {
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-size: 1rem;
+    cursor: none;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    border-radius: 50%;
+}
+
+.player-btn:hover {
+    color: var(--bright);
+    background: rgba(192,192,192,0.1);
+}
+
+.player-btn.mute-btn {
+    font-size: 1.1rem;
+}
+
+.player-btn.skip-btn {
+    font-size: 0.9rem;
+}
+
+/* Tooltip minimalista */
+.player-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    background: rgba(0,0,0,0.95);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    font-size: 0.65rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--bright);
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s;
+    pointer-events: none;
+}
+
+.player-btn:hover .player-tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(-4px);
+}
+
+@media(max-width:968px){
+    .music-player {
+        bottom: 20px;
+        left: 20px;
+        padding: 10px 12px;
+    }
+    .audio-visualizer {
+        width: 20px;
+        height: 16px;
+    }
+    .visualizer-bar {
+        width: 2px;
+    }
+}
     </style>
 </head>
 <body>
@@ -809,7 +936,24 @@
     <div class="custom-cursor" id="customCursor"></div>
     <div class="cursor-dot" id="cursorDot"></div>
     
-    
+    <!-- Reproductor Minimalista -->
+    <div class="music-player playing" id="musicPlayer">
+        <div class="audio-visualizer" id="visualizer">
+            <div class="visualizer-bar"></div>
+            <div class="visualizer-bar"></div>
+            <div class="visualizer-bar"></div>
+            <div class="visualizer-bar"></div>
+        </div>
+        <button class="player-btn mute-btn" onclick="toggleMute()" id="muteBtn">
+            <span id="muteIcon">🔊</span>
+            <span class="player-tooltip">Mute</span>
+        </button>
+        <button class="player-btn skip-btn" onclick="skipTrack()">
+            <span>⏭</span>
+            <span class="player-tooltip">Skip</span>
+        </button>
+        <audio id="audioPlayer"></audio>
+    </div>
     
     <!-- Transición de página -->
     <div class="page-transition" id="pageTransition"></div>
@@ -1306,15 +1450,13 @@
         
         // Efecto hover en elementos clickeables
         function updateCursorListeners() {
-            const clickables = document.querySelectorAll('a, button, .product-card, .menu-toggle, .filter-btn, .quick-action, .share-btn, .review-product, .fts-card');
+            const clickables = document.querySelectorAll('a, button, .product-card, .menu-toggle, .filter-btn, .quick-action, .share-btn, .review-product, .fts-card, .player-btn');
             clickables.forEach(el => {
                 el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
                 el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
             });
         }
         updateCursorListeners();
-        
-        
         
         // Sonido de cadena (sintetizado)
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -1673,14 +1815,126 @@ message += `${item.quantity}x ${item.name} - $${(item.price * item.quantity).toL
             }
         });
         
-        // Inicializar
+        // ===== REPRODUCTOR DE MÚSICA CON RANDOM =====
+        const originalPlaylist = [
+            // Cero (2 temas)
+            'https://res.cloudinary.com/dzrzmhfxd/video/upload/v1770763626/cero1_xxknxv.mp4',
+            'https://res.cloudinary.com/dzrzmhfxd/video/upload/v1770763704/cero2_olohzz.mp4',
+            // Cluster
+            'https://res.cloudinary.com/dzrzmhfxd/video/upload/v1770764013/0210_1_q5fmda.mp4',
+            // Enzo (2 temas)
+            'https://res.cloudinary.com/dzrzmhfxd/video/upload/v1770764000/0210_1_1_lgop0y.mp4',
+            'https://res.cloudinary.com/dzrzmhfxd/video/upload/v1770764001/0210_1_2_rkr5cd.mp4',
+            // Lulo
+            'https://res.cloudinary.com/dzrzmhfxd/video/upload/v1770764011/0210_1_3_nvoctr.mp4',
+            // Zell
+            'https://res.cloudinary.com/dzrzmhfxd/video/upload/v1770764020/0210_1_4_h9oer2.mp4'
+        ];
+        
+        // Función para mezclar array (Fisher-Yates shuffle)
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+        
+        // Crear playlist randomizada para esta sesión
+        let shuffledPlaylist = shuffleArray(originalPlaylist);
+        let currentTrackIndex = 0;
+        let isMuted = false;
+        const audioPlayer = document.getElementById('audioPlayer');
+        const musicPlayer = document.getElementById('musicPlayer');
+        const muteBtn = document.getElementById('muteBtn');
+        const muteIcon = document.getElementById('muteIcon');
+        
+        // Inicializar reproductor
+        function initMusicPlayer() {
+            audioPlayer.src = shuffledPlaylist[currentTrackIndex];
+            audioPlayer.volume = 0.5; // Volumen al 50%
+            
+            // Intentar reproducir automáticamente (puede ser bloqueado por el navegador)
+            const playPromise = audioPlayer.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    // Autoplay bloqueado, esperar interacción del usuario
+                    console.log('Autoplay bloqueado, esperando interacción');
+                    musicPlayer.classList.add('paused');
+                    musicPlayer.classList.remove('playing');
+                });
+            }
+            
+            // Cuando termina una canción, pasa a la siguiente en orden random
+            audioPlayer.addEventListener('ended', () => {
+                playNextTrack();
+            });
+            
+            // Detectar si se pausa por el navegador
+            audioPlayer.addEventListener('pause', () => {
+                if (!audioPlayer.ended) {
+                    musicPlayer.classList.add('paused');
+                    musicPlayer.classList.remove('playing');
+                }
+            });
+            
+            audioPlayer.addEventListener('play', () => {
+                musicPlayer.classList.remove('paused');
+                musicPlayer.classList.add('playing');
+            });
+        }
+        
+        // Reproducir siguiente track (secuencial en la lista randomizada)
+        function playNextTrack() {
+            currentTrackIndex = (currentTrackIndex + 1) % shuffledPlaylist.length;
+            audioPlayer.src = shuffledPlaylist[currentTrackIndex];
+            audioPlayer.play().catch(e => console.log('Error al reproducir:', e));
+        }
+        
+        // Toggle mute/unmute
+        function toggleMute() {
+            isMuted = !isMuted;
+            audioPlayer.muted = isMuted;
+            
+            if (isMuted) {
+                muteIcon.textContent = '🔇';
+                muteBtn.querySelector('.player-tooltip').textContent = 'Unmute';
+            } else {
+                muteIcon.textContent = '🔊';
+                muteBtn.querySelector('.player-tooltip').textContent = 'Mute';
+            }
+        }
+        
+        // Saltar a canción aleatoria (diferente a la actual)
+        function skipTrack() {
+            let newIndex;
+            do {
+                newIndex = Math.floor(Math.random() * shuffledPlaylist.length);
+            } while (newIndex === currentTrackIndex && shuffledPlaylist.length > 1);
+            
+            currentTrackIndex = newIndex;
+            audioPlayer.src = shuffledPlaylist[currentTrackIndex];
+            audioPlayer.play().catch(e => console.log('Error al reproducir:', e));
+        }
+        
+        // Inicializar al cargar
         window.addEventListener('load', () => {
             setTimeout(showFakeNotification, 5000);
+            initMusicPlayer();
         });
+        
+        // Permitir reproducir en primera interacción del usuario (política de autoplay)
+        document.addEventListener('click', function initAudio() {
+            if (audioPlayer.paused) {
+                audioPlayer.play().catch(e => console.log('Error:', e));
+            }
+            document.removeEventListener('click', initAudio);
+        }, { once: true });
     </script>
 </body>
 </html>
-
 
 
 
