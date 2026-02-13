@@ -1702,6 +1702,7 @@
         // Popup de bienvenida
         function enterSite() {
             siteEntered = true;
+            document.body.classList.add('site-active');
             const overlay = document.getElementById('welcomeOverlay');
             overlay.style.opacity = '0';
             setTimeout(() => {
@@ -2213,6 +2214,7 @@
     </script>
 </body>
 </html>
+
 
 
 
