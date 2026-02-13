@@ -1969,129 +1969,133 @@ message += `${item.quantity}x ${item.name} - $${(item.price * item.quantity).toL
             }
         });
         
-        // ===== REPRODUCTOR DE MÚSICA CON RANDOM =====
-        const originalPlaylist = [
-            'https://res.cloudinary.com/dzrzmhfxd/video/upload/v1770834472/Sin_la_ayuda_de_nadie_qbxqqb.mp4',
-            'https://res.cloudinary.com/dzrzmhfxd/video/upload/v1770834472/No_Puedo_Elegir_ft_NaoSinCorte_KLICKAUD_wp2xpq.mp3',
-            'https://res.cloudinary.com/dzrzmhfxd/video/upload/v1770834472/DBZ_Budokai_Tenkaichi_2_OST_-_Track03_-_Ancient_Mystery_KLICKAUD_d80k1g.mp3',
-            'https://res.cloudinary.com/dzrzmhfxd/video/upload/v1770834472/Pt._2_tjb8hq.mp4',
-            'https://res.cloudinary.com/dzrzmhfxd/video/upload/v1770834472/Pulm%C3%B3n_y_sentimiento_KLICKAUD_w9okt9.mp3',
-            'https://res.cloudinary.com/dzrzmhfxd/video/upload/v1770834472/fq7KxMzIKulH.128_wdf5ji.mp3',
-            'https://res.cloudinary.com/dzrzmhfxd/video/upload/v1770834475/Mir_Nicol%C3%A1s_-_Cifrado_94_twgiiq.mp4',
-            'https://res.cloudinary.com/dzrzmhfxd/video/upload/v1770834475/a40XsMRBJHKB.128_vdmxlo.mp3',
-            'https://res.cloudinary.com/dzrzmhfxd/video/upload/v1770834476/_KLICKAUD_ldgt6e.mp3',
-            'https://res.cloudinary.com/dzrzmhfxd/video/upload/v1770834476/Patricio_Rey_y_sus_Redonditos_de_Ricota_-_La_Bestia_Pop_Audio_Oficial_adivnz.mp4',
-            'https://res.cloudinary.com/dzrzmhfxd/video/upload/v1770834477/Dos_F_gvdlkz.mp4',
-            'https://res.cloudinary.com/dzrzmhfxd/video/upload/v1770834478/M%C3%A1s_dinero_M%C3%A1s_cadenas_t6zirs.mp4',
-            'https://res.cloudinary.com/dzrzmhfxd/video/upload/v1770834478/Todo_si_feat._trendyboi_hd5igd.mp4',
-            'https://res.cloudinary.com/dzrzmhfxd/video/upload/v1770834478/El_Bogueto_Yung_Beef_Cuando_No_Era_Cantante_No_Hay_Loco_Que_No_Corone_Visualizer_va6rd9.mp4',
-            'https://res.cloudinary.com/dzrzmhfxd/video/upload/v1770834482/Mir_Nicol%C3%A1s_x_Santiki_-_Luh_Tyler_Flow_vc8npu.mp4'
-        ];
-        
-        // Función para mezclar array (Fisher-Yates shuffle)
-        function shuffleArray(array) {
-            const newArray = [...array];
-            for (let i = newArray.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-            }
-            return newArray;
-        }
-        
-        // Crear playlist randomizada para esta sesión
-        let shuffledPlaylist = shuffleArray(originalPlaylist);
-        let currentTrackIndex = 0;
-        let isMuted = false;
-        const audioPlayer = document.getElementById('audioPlayer');
-        const musicPlayer = document.getElementById('musicPlayer');
-        const muteBtn = document.getElementById('muteBtn');
-        const muteIcon = document.getElementById('muteIcon');
-        
-        // Inicializar reproductor
-        function initMusicPlayer() {
-            audioPlayer.src = shuffledPlaylist[currentTrackIndex];
-            audioPlayer.volume = 0.5; // Volumen al 50%
-            
-            // Intentar reproducir automáticamente (puede ser bloqueado por el navegador)
-            const playPromise = audioPlayer.play();
-            
-            if (playPromise !== undefined) {
-                playPromise.catch(error => {
-                    // Autoplay bloqueado, esperar interacción del usuario
-                    console.log('Autoplay bloqueado, esperando interacción');
-                    musicPlayer.classList.add('paused');
-                    musicPlayer.classList.remove('playing');
-                });
-            }
-            
-            // Cuando termina una canción, pasa a la siguiente en orden random
-            audioPlayer.addEventListener('ended', () => {
-                playNextTrack();
-            });
-            
-            // Detectar si se pausa por el navegador
-            audioPlayer.addEventListener('pause', () => {
-                if (!audioPlayer.ended) {
-                    musicPlayer.classList.add('paused');
-                    musicPlayer.classList.remove('playing');
-                }
-            });
-            
-            audioPlayer.addEventListener('play', () => {
-                musicPlayer.classList.remove('paused');
-                musicPlayer.classList.add('playing');
-            });
-        }
-        
-        // Reproducir siguiente track (secuencial en la lista randomizada)
-        function playNextTrack() {
-            currentTrackIndex = (currentTrackIndex + 1) % shuffledPlaylist.length;
-            audioPlayer.src = shuffledPlaylist[currentTrackIndex];
-            audioPlayer.play().catch(e => console.log('Error al reproducir:', e));
-        }
-        
-        // Toggle mute/unmute
-        function toggleMute() {
-            isMuted = !isMuted;
-            audioPlayer.muted = isMuted;
-            
-            if (isMuted) {
-                muteIcon.textContent = '🔇';
-                muteBtn.querySelector('.player-tooltip').textContent = 'Unmute';
-            } else {
-                muteIcon.textContent = '🔊';
-                muteBtn.querySelector('.player-tooltip').textContent = 'Mute';
-            }
-        }
-        
-        // Saltar a canción aleatoria (diferente a la actual)
-        function skipTrack() {
-            let newIndex;
-            do {
-                newIndex = Math.floor(Math.random() * shuffledPlaylist.length);
-            } while (newIndex === currentTrackIndex && shuffledPlaylist.length > 1);
-            
-            currentTrackIndex = newIndex;
-            audioPlayer.src = shuffledPlaylist[currentTrackIndex];
-            audioPlayer.play().catch(e => console.log('Error al reproducir:', e));
-        }
-        
-        // Inicializar al cargar
-        window.addEventListener('load', () => {
-            setTimeout(showFakeNotification, 5000);
-            initMusicPlayer();
+       // ===== REPRODUCTOR DE MÚSICA - 9 TEMAS NUEVOS (SIN REPETIR) =====
+const originalPlaylist = [
+    'https://res.cloudinary.com/dremrhmqc/video/upload/v1771018689/Dudley_s_Theme_-_You_Blow_my_Mind_SF_III.3_f0a7em.mp4',
+    'https://res.cloudinary.com/dremrhmqc/video/upload/v1771018689/Gatebreaker_Alterative_Version_-_Dragon_Ball_Z_Budokai_Tenkaichi_2_Soundtrack_High_Quality_z6bq5b.mp4',
+    'https://res.cloudinary.com/dremrhmqc/video/upload/v1771018689/Move_Me_hzv3t0.mp4',
+    'https://res.cloudinary.com/dremrhmqc/video/upload/v1771018690/Ancient_Mystery_-_Dragon_Ball_Z_Budokai_Tenkaichi_2_Soundtrack_High_Quality_d3iy4u.mp4',
+    'https://res.cloudinary.com/dremrhmqc/video/upload/v1771018691/Dragon_Ball_Z__Budokai_Tenkaichi_2_OST_HQ_Rip_-_Lonesome_Wild_dyatmp.mp4',
+    'https://res.cloudinary.com/dremrhmqc/video/upload/v1771018692/Drift_Psychosis_mjfy0g.mp4',
+    'https://res.cloudinary.com/dremrhmqc/video/upload/v1771018696/Oro_Sean_s_Theme_The_Longshoreman_SF_III.3_heerap.mp4',
+    'https://res.cloudinary.com/dremrhmqc/video/upload/v1771018699/Bassrider_cszehg.mp4',
+    'https://res.cloudinary.com/dremrhmqc/video/upload/v1771018705/Pearl_Blue_Soul_fbo97t.mp4'
+];
+
+// Función para mezclar array (Fisher-Yates shuffle)
+function shuffleArray(array) {
+    const newArray = [...array];
+    for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    }
+    return newArray;
+}
+
+// Estado del reproductor
+let shuffledPlaylist = shuffleArray(originalPlaylist);
+let currentTrackIndex = 0;
+let playedTracks = []; // Array para trackear qué índices ya sonaron
+let isMuted = false;
+const audioPlayer = document.getElementById('audioPlayer');
+const musicPlayer = document.getElementById('musicPlayer');
+const muteBtn = document.getElementById('muteBtn');
+const muteIcon = document.getElementById('muteIcon');
+
+// Inicializar reproductor
+function initMusicPlayer() {
+    // Agregar el primer track a los reproducidos
+    playedTracks.push(currentTrackIndex);
+    
+    audioPlayer.src = shuffledPlaylist[currentTrackIndex];
+    audioPlayer.volume = 0.5;
+    
+    const playPromise = audioPlayer.play();
+    
+    if (playPromise !== undefined) {
+        playPromise.catch(error => {
+            console.log('Autoplay bloqueado, esperando interacción');
+            musicPlayer.classList.add('paused');
+            musicPlayer.classList.remove('playing');
         });
-        
-        // Permitir reproducir en primera interacción del usuario (política de autoplay)
-        document.addEventListener('click', function initAudio() {
-            if (audioPlayer.paused) {
-                audioPlayer.play().catch(e => console.log('Error:', e));
-            }
-            document.removeEventListener('click', initAudio);
-        }, { once: true });
+    }
+    
+    // Cuando termina una canción, pasar a la siguiente sin repetir
+    audioPlayer.addEventListener('ended', () => {
+        playNextTrack();
+    });
+    
+    audioPlayer.addEventListener('pause', () => {
+        if (!audioPlayer.ended) {
+            musicPlayer.classList.add('paused');
+            musicPlayer.classList.remove('playing');
+        }
+    });
+    
+    audioPlayer.addEventListener('play', () => {
+        musicPlayer.classList.remove('paused');
+        musicPlayer.classList.add('playing');
+    });
+}
+
+// Reproducir siguiente track (aleatorio sin repetir)
+function playNextTrack() {
+    // Si ya se reprodujeron todas, reiniciar y mezclar de nuevo
+    if (playedTracks.length >= shuffledPlaylist.length) {
+        playedTracks = [];
+        // Volver a mezclar para que el orden sea diferente
+        shuffledPlaylist = shuffleArray(originalPlaylist);
+    }
+    
+    // Encontrar un índice que no haya sido reproducido
+    let nextIndex;
+    do {
+        nextIndex = Math.floor(Math.random() * shuffledPlaylist.length);
+    } while (playedTracks.includes(nextIndex));
+    
+    currentTrackIndex = nextIndex;
+    playedTracks.push(currentTrackIndex);
+    
+    audioPlayer.src = shuffledPlaylist[currentTrackIndex];
+    audioPlayer.play().catch(e => console.log('Error al reproducir:', e));
+}
+
+// Saltar a siguiente track (aleatorio sin repetir)
+function skipTrack() {
+    playNextTrack();
+}
+
+// Toggle mute/unmute
+function toggleMute() {
+    isMuted = !isMuted;
+    audioPlayer.muted = isMuted;
+    
+    if (isMuted) {
+        muteIcon.textContent = '🔇';
+        muteBtn.querySelector('.player-tooltip').textContent = 'Unmute';
+    } else {
+        muteIcon.textContent = '🔊';
+        muteBtn.querySelector('.player-tooltip').textContent = 'Mute';
+    }
+}
+
+// Inicializar al cargar
+window.addEventListener('load', () => {
+    setTimeout(showFakeNotification, 5000);
+    initMusicPlayer();
+});
+
+// Permitir reproducir en primera interacción del usuario
+document.addEventListener('click', function initAudio() {
+    if (audioPlayer.paused) {
+        audioPlayer.play().catch(e => console.log('Error:', e));
+    }
+    document.removeEventListener('click', initAudio);
+}, { once: true });
     </script>
 </body>
 </html>
+
 
 
 
